@@ -12,6 +12,18 @@ const app = new Hono<{
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
+app.use('/blog/*', async (c, next) => {
+  const header=c.req.header("authorization")||"";
+  const token=header.split(" ")[1];
+  const response = await verify(token, c.env.JWT_SECRET, 'HS256');
+  if(response.id){
+     await next()
+  }else{
+    c.status(403);
+    return c.json("unauthorized");
+  }
+ 
+})
 app.post("/user/signup", async (c) => {
   const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
@@ -32,7 +44,7 @@ app.post("/user/signup", async (c) => {
       }
     });
 
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET, 'HS256');
     return c.json({ jwt });
   } catch (e: any) {
     console.error("Signup Error Detailed:", e);
@@ -56,7 +68,7 @@ app.post("/user/login",async(c)=>{
         c.status(403);
 		    return c.json({ error: "user not found" });
       }
-      const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+      const jwt = await sign({ id: user.id }, c.env.JWT_SECRET, 'HS256');
       return c.json({ jwt });
     } catch (error) {
       return c.status(403);
