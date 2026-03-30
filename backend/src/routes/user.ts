@@ -1,3 +1,4 @@
+import { signinInput, signupInput } from '@gauravvv/medium-common';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
@@ -14,19 +15,24 @@ userRouter.post("/signup", async (c) => {
   const prisma = new PrismaClient({
     accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
+  
 
   try {
     const body = await c.req.json();
+    const {success} =signupInput.safeParse(body);
+    if(!success){
+      c.status(411);
+      return c.json({
+        message:"Inputs are not correct"
+      })
+    }
     console.log("Signup Body:", body);
     
-    if (!body.email || !body.password) {
-      return c.json({ error: "Email and password are required" }, 400);
-    }
-
     const user = await prisma.user.create({
       data: {
         email: body.email,
-        password: body.password
+        password: body.password,
+        name: body.name
       }
     });
 
@@ -43,6 +49,13 @@ userRouter.post("/login",async(c)=>{
     accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
     const body=await c.req.json();
+    const {success}=signinInput.safeParse(body);
+    if(!success){
+      c.status(411);
+      return c.json({
+        message:"Inputs not correct"
+      })
+    }
     try {
       const user=await prisma.user.findUnique({
         where:{
