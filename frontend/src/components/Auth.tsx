@@ -16,16 +16,18 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
                             Create an account
                         </div>
                         <div className="text-slate-400">
-                            {type==="signin"?"Don't have an account?":"Already have an account"}<Link className="pl-2 underline" to={type==="signin"?"/signup":"/signin"}>Login</Link>
+                            {type==="signin"?"Don't have an account?":"Already have an account"}<Link className="pl-2 underline" to={type==="signin"?"/signup":"/signin"}>{type==="signin"?"Sign up":"Sign in"}</Link>
                         </div>
                     </div>
                     <div className="pt-8">
-                        <LabelledInput label="Name" placeholder="Gaurav goswami..." onChange={(e) => {
+                        {
+                            type==="signup"?<LabelledInput label="Name" placeholder="Gaurav goswami..." onChange={(e) => {
                             setPostInputs({
                                 ...postInputs,
                                 name: e.target.value
                             })
-                        }} />
+                        }} />:null
+                        }
                         <LabelledInput label="username" placeholder="gaurav123@gmail.com" onChange={(e) => {
                             setPostInputs({
                                 ...postInputs,
