@@ -1,12 +1,29 @@
 import type { SignupInput } from "@gauravvv/medium-common";
+import axios from "axios";
 import React, { useState, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../config";
 const Auth = ({ type }: { type: "signup" | "signin" }) => {
+    const navigate=useNavigate();
     const [postInputs, setPostInputs] = useState<SignupInput>({
         name: "",
-        username: "",
+        email: "",
         password: ""
     })
+    async function sendRequest(){
+        try {
+            const response=await axios.post(`${BACKEND_URL}/api/v1/user/${type==="signin"?"login":"signup"}`,
+                postInputs
+            )
+            const jwt=response.data.jwt;
+            localStorage.setItem("token",jwt);
+            navigate("/blogs")
+            
+        } catch (error) {
+            alert("Error while authentication")
+        }
+        
+    }
     return (
         <div className="h-screen flex justify-center flex-col">
             <div className="flex justify-center">
@@ -28,10 +45,10 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
                             })
                         }} />:null
                         }
-                        <LabelledInput label="username" placeholder="gaurav123@gmail.com" onChange={(e) => {
+                        <LabelledInput label="Email" placeholder="gaurav123@gmail.com" onChange={(e) => {
                             setPostInputs({
                                 ...postInputs,
-                                username: e.target.value
+                                email: e.target.value
                             })
                         }} />
                         <LabelledInput label="Password"
@@ -43,7 +60,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
                                 })
                             }} />
 
-                        <button type="button" className="mt-8 w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">{type === "signup" ? "Sign up" : "Sign in"}</button>
+                        <button onClick={sendRequest} type="button" className="mt-8 w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">{type === "signup" ? "Sign up" : "Sign in"}</button>
                     </div>
 
                 </div>

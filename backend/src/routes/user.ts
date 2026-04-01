@@ -57,12 +57,15 @@ userRouter.post("/login",async(c)=>{
       })
     }
     try {
-      const user=await prisma.user.findUnique({
-        where:{
-          email:body.email,
-          password:body.password
+      const user = await prisma.user.findUnique({
+        where: {
+          email: body.email,
         }
       })
+      if (!user || user.password !== body.password) {
+        c.status(403);
+        return c.json({ error: "user not found/ incorrect password" });
+      }
       if(!user){
         c.status(403);
 		    return c.json({ error: "user not found" });
