@@ -123,7 +123,7 @@ blogRouter.get("/:id", async (c) => {
       }
     });
     return c.json({
-      id: blog,
+      blog,
     });
   } catch (error) {
     c.status(411);
